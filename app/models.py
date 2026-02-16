@@ -1,6 +1,7 @@
 import enum
 from sqlalchemy import Column, Integer, String, Enum, ForeignKey
 from .database import Base
+from sqlalchemy.orm import relationship
 
 class UserRole(str, enum.Enum):
     ADMIN = "admin"
@@ -13,6 +14,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     role = Column(String, default=UserRole.TEAM)
+    tournaments = relationship("Tournament", back_populates="creator")
 
 class Tournament(Base):
     __tablename__ = "tournaments"
@@ -21,3 +23,4 @@ class Tournament(Base):
     description = Column(String)
     status = Column(String, default="open")
     creator_id = Column(Integer, ForeignKey("users.id"))
+    creator = relationship("User", back_populates="tournaments")
