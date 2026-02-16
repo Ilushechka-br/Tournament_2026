@@ -11,6 +11,8 @@ class UserCreate(UserBase):
 class UserOut(UserBase):
     id: int
     role: str
+    tournaments: list[TournamentShort] = []
+
     class Config:
         from_attributes = True
 
@@ -25,3 +27,11 @@ class TournamentOut(BaseModel):
     creator_id: int
     class Config:
         from_attributes = True
+
+class TournamentShort(BaseModel):
+    id: int
+    title: str
+    status: str
+    class Config:
+        from_attributes = True
+
