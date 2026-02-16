@@ -8,6 +8,13 @@ class UserCreate(UserBase):
     password: str
     role: Optional[str] = "team"
 
+class TournamentShort(BaseModel):
+    id: int
+    title: str
+    status: str
+    class Config:
+        from_attributes = True
+
 class UserOut(UserBase):
     id: int
     role: str
@@ -28,10 +35,4 @@ class TournamentOut(BaseModel):
     class Config:
         from_attributes = True
 
-class TournamentShort(BaseModel):
-    id: int
-    title: str
-    status: str
-    class Config:
-        from_attributes = True
 

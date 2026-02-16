@@ -25,3 +25,6 @@ def create_tournament(db: Session, tournament: schemas.TournamentCreate, user_id
     db.commit()
     db.refresh(db_tournament)
     return db_tournament
+
+def get_user_tournaments(db: Session, user_id: int):
+    return db.query(models.Tournament).filter(models.Tournament.creator_id == user_id).all()
