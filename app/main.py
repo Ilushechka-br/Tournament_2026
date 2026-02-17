@@ -20,9 +20,13 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     return crud.create_user(db=db, user=user)
 
-@app.post("/tournaments/", response_model=schemas.TournamentOut)
-def create_tournament(tournament: schemas.TournamentCreate, creator_id: int, db: Session = Depends(get_db)):
-    return crud.create_tournament(db=db, tournament=tournament, user_id=creator_id)
+@app.post("/tournaments/", response_model=schemas.TournamentOut, tags=["Admin"])
+def create_tournament(tournament: schemas.TournamentCreate, db: Session = Depends(database.get_db)):
+    return crud.create_tournament(db=db, tournament=tournament)
+
+@app.post("/teams/", response_model=schemas.TeamOut, tags=["Teams"])
+def register_new_team(team: schemas.TeamCreate, db: Session = Depends(database.get_db)):
+    return crud.register_team(db=db, team_data=team)
 
 @app.get("/")
 def home():
