@@ -1,3 +1,4 @@
+import random
 from sqlalchemy.orm import Session
 from . import models, schemas
 from datetime import datetime
@@ -73,3 +74,44 @@ def register_team(db: Session, team_data: schemas.TeamCreate):
     
     db.commit()
     return db_team
+
+def create_submission(db: Session, sub_data: schemas.SubmissionCreate):
+
+    round_obj = db.query(models.Round).filter(models.Round.id == sub_data.round_id).first()
+    
+    if not round_obj or round_obj.end_time < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="Час подачі робіт вичерпано або раунд не знайдено")
+    
+    db_sub = models.Submission(
+        team_id=sub_data.team_id,
+        round_id=sub_data.round_id,
+        github_link=sub_data.github_link,
+        video_link=sub_data.video_link,
+        description=sub_data.description
+    )
+    db.add(db_sub)
+    db.commit()
+    db.refresh(db_sub)
+    return db_sub
+
+def distribute_submissions_to_jury(db: Session, round_id: int):
+    submissions = db.query(models.Submission).filter(models.Submission.round_id == round_id).all()
+    jury_members = db.query(models.User).filter(models.User.role == "jury").all()
+    
+    if not jury_members:
+        raise HTTPException(status_code=400, detail="Немає зареєстрованих членів журі")
+
+    assignments = []
+    for sub in submissions:
+        # Вибираємо 2 випадкових членів журі для кожної роботи (як у ТЗ)
+        chosen_jury = random.sample(jury_members, k=min(2, len(jury_members)))
+        for jury in chosen_jury:
+            eval_record = models.Evaluation(
+                submission_id=sub.id,
+                jury_id=jury.id,
+                tech_score=0, # Початкове значення
+                func_score=0
+            )
+            db.add(eval_record)
+    db.commit()
+    return {"status": "Роботи розподілено між журі"}

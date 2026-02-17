@@ -35,4 +35,16 @@ class TournamentOut(BaseModel):
     class Config:
         from_attributes = True
 
-
+class RoundCreate(BaseModel):
+    title: str
+    description: str
+    requirements: str 
+    start_time: datetime
+    end_time: datetime
+    tournament_id: int
+    
+class RoundOut(RoundCreate):
+    id: int
+    status: str = "Draft"
+    class Config:
+        from_attributes = True
