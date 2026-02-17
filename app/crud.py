@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from . import models, schemas
 from datetime import datetime
 from fastapi import HTTPException
+from sqlalchemy import func
 
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
@@ -115,3 +116,29 @@ def distribute_submissions_to_jury(db: Session, round_id: int):
             db.add(eval_record)
     db.commit()
     return {"status": "Роботи розподілено між журі"}
+
+def get_leaderboard(db: Session, tournament_id: int):
+
+    results = db.query(
+        models.Team.name,
+        func.avg(models.Evaluation.tech_score).label("tech_avg"),
+        func.avg(models.Evaluation.func_score).label("func_avg"),
+        func.count(models.Submission.id).label("subs_count")
+    ).join(models.Submission, models.Team.id == models.Submission.team_id)\
+     .join(models.Evaluation, models.Submission.id == models.Evaluation.submission_id)\
+     .filter(models.Team.tournament_id == tournament_id)\
+     .group_by(models.Team.id)\
+     .all()
+
+    leaderboard = []
+    for res in results:
+        total = (res.tech_avg + res.func_avg) / 2 
+        leaderboard.append({
+            "team_name": res.name,
+            "tech_avg": round(res.tech_avg, 2),
+            "func_avg": round(res.func_avg, 2),
+            "total_score": round(total, 2),
+            "submissions_count": res.subs_count
+        })
+    
+    return sorted(leaderboard, key=lambda x: x["total_score"], reverse=True)

@@ -31,3 +31,29 @@ def register_new_team(team: schemas.TeamCreate, db: Session = Depends(database.g
 @app.get("/")
 def home():
     return {"status": "ok"}
+
+@app.post("/rounds/", tags=["Admin"])
+def create_round(round_data: schemas.RoundCreate, db: Session = Depends(database.get_db)):
+    return crud.create_round(db, round_data)
+
+@app.post("/submissions/", tags=["Teams"])
+def submit_work(sub: schemas.SubmissionCreate, db: Session = Depends(database.get_db)):
+    return crud.create_submission(db, sub)
+
+@app.post("/rounds/{round_id}/distribute", tags=["Admin"])
+def distribute_works(round_id: int, db: Session = Depends(database.get_db)):
+    return crud.distribute_submissions_to_jury(db, round_id)
+
+@app.get("/tournaments/{tournament_id}/leaderboard", response_model=List[schemas.LeaderboardEntry], tags=["Public"])
+def read_leaderboard(tournament_id: int, db: Session = Depends(database.get_db)):
+    return crud.get_leaderboard(db, tournament_id=tournament_id)
+
+@app.get("/users/me/team", tags=["User Profile"])
+def get_my_team_info(user_id: int, db: Session = Depends(database.get_db)):
+    # Команда, де поточний юзер є капітаном
+    return db.query(models.Team).filter(models.Team.captain_id == user_id).first()
+
+@app.get("/users/me/evaluations", tags=["User Profile"])
+def get_jury_assignments(user_id: int, db: Session = Depends(database.get_db)):
+    # Список робіт, які призначені цьому журі
+    return db.query(models.Evaluation).filter(models.Evaluation.jury_id == user_id).all()

@@ -48,3 +48,14 @@ class RoundOut(RoundCreate):
     status: str = "Draft"
     class Config:
         from_attributes = True
+
+class LeaderboardEntry(BaseModel):
+    team_name: str
+    total_score: float
+    tech_avg: float
+    func_avg: float
+    submissions_count: int
+
+    class Config:
+        from_attributes = True
+        
