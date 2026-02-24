@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 class UserBase(BaseModel):
     email: str
@@ -58,4 +59,30 @@ class LeaderboardEntry(BaseModel):
 
     class Config:
         from_attributes = True
+
+class TeamMemberCreate(BaseModel):
+    full_name: str
+    email: str
+
+class TeamCreate(BaseModel):
+    name: str
+    tournament_id: int
+    captain_email: str
+    members: list[TeamMemberCreate] = []
+
+class TeamOut(BaseModel):
+    id: int
+    name: str
+    tournament_id: int
+    captain_email: str
+
+    class Config:
+        from_attributes = True
+
+class SubmissionCreate(BaseModel):
+    team_id: int
+    round_id: int
+    github_link: str
+    video_link: Optional[str] = None
+    description: Optional[str] = None
         
