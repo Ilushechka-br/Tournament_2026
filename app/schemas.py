@@ -62,8 +62,6 @@ class LeaderboardEntry(BaseModel):
     class Config:
         from_attributes = True
 
-
-#до цих класів було звернення але їх не існувало :(
 class TeamMemberCreate(BaseModel):
     full_name: str
     email: str
