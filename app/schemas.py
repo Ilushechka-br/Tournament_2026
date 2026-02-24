@@ -27,12 +27,14 @@ class UserOut(UserBase):
 class TournamentCreate(BaseModel):
     title: str
     description: Optional[str] = None
+    reg_start: datetime
+    reg_end: datetime
 
 class TournamentOut(BaseModel):
     id: int
     title: str
     status: str
-    creator_id: int
+    creator_id: Optional[int] = None#Тимчасовий фікс
     class Config:
         from_attributes = True
 
@@ -60,6 +62,8 @@ class LeaderboardEntry(BaseModel):
     class Config:
         from_attributes = True
 
+
+#до цих класів було звернення але їх не існувало :(
 class TeamMemberCreate(BaseModel):
     full_name: str
     email: str
@@ -68,6 +72,7 @@ class TeamCreate(BaseModel):
     name: str
     tournament_id: int
     captain_email: str
+    captain_name: str
     members: list[TeamMemberCreate] = []
 
 class TeamOut(BaseModel):
@@ -75,6 +80,7 @@ class TeamOut(BaseModel):
     name: str
     tournament_id: int
     captain_email: str
+    captain_name: str
 
     class Config:
         from_attributes = True
